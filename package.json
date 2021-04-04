@@ -321,7 +321,7 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
-    "inversify": "^5.0.1",
+    "inversify": "^5.0.5",
     "lodash": "^4.17.15",
     "open": "^7.0.2",
     "nsri": "^4.6.0",
