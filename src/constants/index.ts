@@ -1,13 +1,15 @@
 import * as manifest from '../../../package.json';
+import { IPackageManifest } from '../models/packageManifest';
 
 export const constants = {
   environment: { production: false },
   extension: {
     name: 'vscode-icons',
     settingsFilename: 'vsicons.settings.json',
-    version: manifest.version,
+    version: (manifest as IPackageManifest).version,
     customIconFolderName: 'vsicons-custom-icons',
     distEntryFilename: 'vscode-icons.bundle.js',
+    uninstallEntryFilename: 'uninstall.bundle.js',
     outDirName: 'out',
     distDirName: 'dist',
     srcDirName: 'src',

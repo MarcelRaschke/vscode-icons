@@ -143,7 +143,7 @@ describe('ConfigManager: tests', function () {
 
     context(`function 'outDir'`, function () {
       it(`returns the 'out' directory`, function () {
-        const baseRegexp = `^[a-zA-Z:\\\\]+|\/`;
+        const baseRegexp = `^[a-zA-Z:\\\\]+|/`;
         expect(ConfigManager.outDir).to.match(
           new RegExp(`${baseRegexp}${constants.extension.outDirName}`),
         );
@@ -152,10 +152,10 @@ describe('ConfigManager: tests', function () {
 
     context(`function 'sourceDir'`, function () {
       it(`returns the 'source' directory`, function () {
-        const baseRegexp = `^[a-zA-Z:\\\\]+|\/`;
+        const baseRegexp = `^[a-zA-Z:\\\\]+|/`;
         expect(ConfigManager.sourceDir).to.match(
           new RegExp(
-            `${baseRegexp}${constants.extension.outDirName}[\\\\|\/]${constants.extension.srcDirName}`,
+            `${baseRegexp}${constants.extension.outDirName}[\\\\|/]${constants.extension.srcDirName}`,
           ),
         );
       });
@@ -163,7 +163,7 @@ describe('ConfigManager: tests', function () {
 
     context(`function 'iconsDir'`, function () {
       it(`returns the 'icons' directory`, function () {
-        const baseRegexp = `^[a-zA-Z:\\\\]+|\/`;
+        const baseRegexp = `^[a-zA-Z:\\\\]+|/`;
         expect(ConfigManager.iconsDir).to.match(
           new RegExp(`${baseRegexp}${constants.extension.iconsDirName}`),
         );
@@ -1078,7 +1078,7 @@ describe('ConfigManager: tests', function () {
 
         it(`updates the initial configuration state`, function () {
           // @ts-ignore
-          const initConfig = configManager.initVSIconsConfig;
+          const initConfig = configManager.initVSIconsConfig as IVSIcons;
           vsiconsClone.presets.angular = true;
 
           configManager.updateVSIconsConfigState();
@@ -1095,7 +1095,7 @@ describe('ConfigManager: tests', function () {
 
         it(`does NOT update the initial configuration state`, function () {
           // @ts-ignore
-          const initConfig = configManager.initVSIconsConfig;
+          const initConfig = configManager.initVSIconsConfig as IVSIcons;
           vsiconsClone.presets.angular = true;
 
           configManager.updateVSIconsConfigState();
@@ -1273,7 +1273,7 @@ describe('ConfigManager: tests', function () {
       it(`returns 'undefined', if the preset setting does NOT exists`, function () {
         inspectStub.returns(undefined);
 
-        expect(configManager.getPreset<any>('some.unknown')).to.be.undefined;
+        expect(configManager.getPreset('some.unknown')).to.be.undefined;
         expect(inspectStub.getCall(2).calledWith('some.unknown')).to.be.true;
       });
     });

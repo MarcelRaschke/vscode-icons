@@ -7,6 +7,7 @@ import {
   ConfigurationTarget,
   IConfigManager,
   IFileExtension,
+  IFolderExtension,
   IPreset,
   IVSCodeManager,
   IVSCodeWorkspaceConfiguration,
@@ -61,21 +62,21 @@ export class ConfigManager implements IConfigManager {
    */
   public get vsicons(): IVSIcons {
     // ALWAYS use 'getConfiguration' to get a fresh copy of the `vsicons` configurations
-    const mergedConfig = cloneDeep(
+    const mergedConfig: IVSIcons = cloneDeep<IVSIcons>(
       this.vscodeManager.workspace.getConfiguration()[constants.vsicons.name],
     );
-    const files = this.configuration.inspect<IFileExtension[]>(
-      constants.vsicons.associations.filesSetting,
-    );
-    mergedConfig.associations.files = unionWith(
+    const files: IPreset<IFileExtension[]> = this.configuration.inspect<
+      IFileExtension[]
+    >(constants.vsicons.associations.filesSetting);
+    mergedConfig.associations.files = unionWith<IFileExtension>(
       files.workspaceValue,
       files.globalValue,
       isEqual,
     );
-    const folders = this.configuration.inspect<IFileExtension[]>(
-      constants.vsicons.associations.foldersSetting,
-    );
-    mergedConfig.associations.folders = unionWith(
+    const folders: IPreset<IFolderExtension[]> = this.configuration.inspect<
+      IFolderExtension[]
+    >(constants.vsicons.associations.foldersSetting);
+    mergedConfig.associations.folders = unionWith<IFolderExtension>(
       folders.workspaceValue,
       folders.globalValue,
       isEqual,
@@ -109,13 +110,13 @@ export class ConfigManager implements IConfigManager {
     const regex = new RegExp(
       `(.+[\\|/]extensions[\\|/])(?:.*${constants.extension.name})`,
     );
-    const matches = dirname(__filename).match(regex);
+    const matches = regex.exec(dirname(__filename));
     const vscodeExtensionDirPath: string =
       (matches && matches.length > 0 && matches[1]) || './';
     const extensionNameRegExp = new RegExp(`.*${constants.extension.name}`);
-    const existingInstallations: number = (await readdirAsync(
-      vscodeExtensionDirPath,
-    )).filter(filename => extensionNameRegExp.test(filename)).length;
+    const existingInstallations: number = (
+      await readdirAsync(vscodeExtensionDirPath)
+    ).filter((filename: string) => extensionNameRegExp.test(filename)).length;
     return existingInstallations === 1;
   }
 
@@ -134,15 +135,15 @@ export class ConfigManager implements IConfigManager {
       if (vscodeAppName !== 'user-data') {
         return undefined;
       }
+      const isInsiders = await existsAsync(
+        Utils.pathUnixJoin(
+          process.env.VSCODE_CWD,
+          'code-insiders-portable-data',
+        ),
+      );
       let dataDir: string;
       switch (process.platform) {
         case 'darwin':
-          const isInsiders = await existsAsync(
-            Utils.pathUnixJoin(
-              process.env.VSCODE_CWD,
-              'code-insiders-portable-data',
-            ),
-          );
           dataDir = `code-${isInsiders ? 'insiders-' : ''}portable-data`;
           break;
         default:
@@ -160,7 +161,7 @@ export class ConfigManager implements IConfigManager {
 
   private static removeVSIconsConfigs(source: string[]): string[] {
     const findLinesToRemove = (): number[] => {
-      const linesToRemove = [];
+      const linesToRemove: number[] = [];
       const regexp = new RegExp(`^\\s*"${constants.vsicons.name}\\.`);
       const addTo = (value: string, index: number, array: string[]): void => {
         if (!regexp.test(value)) {
@@ -168,7 +169,7 @@ export class ConfigManager implements IConfigManager {
         }
         linesToRemove.push(index);
         let counter = 0;
-        if (/[\{\[]\s*$/.test(array[index])) {
+        if (/[{[]\s*$/.test(array[index])) {
           counter++;
         }
         if (/\[\{\s*$/.test(array[index])) {
@@ -176,10 +177,10 @@ export class ConfigManager implements IConfigManager {
         }
         while (counter > 0) {
           linesToRemove.push(++index);
-          if (/[\{\[]/.test(array[index])) {
+          if (/[{[]/.test(array[index])) {
             counter++;
           }
-          if (/[\}\]]/.test(array[index])) {
+          if (/[}\]]/.test(array[index])) {
             counter--;
           }
         }
@@ -195,7 +196,7 @@ export class ConfigManager implements IConfigManager {
 
   private static resetIconTheme(source: string[]): string[] {
     const foundLineIndex = source.findIndex(
-      line =>
+      (line: string) =>
         line.includes(constants.vscode.iconThemeSetting) &&
         line.includes(constants.extension.name),
     );
@@ -225,10 +226,10 @@ export class ConfigManager implements IConfigManager {
     currentConfig: IVSIcons | undefined,
     sections?: string[],
   ): boolean {
-    const filter = (obj: IVSIcons, keys: string[]): {} =>
+    const filter = (obj: IVSIcons, keys: string[]): Record<string, string[]> =>
       (Reflect.ownKeys(obj || {}) as string[])
-        .filter((key, __, array) => (keys || array).indexOf(key) !== -1)
-        .reduce((nObj, key) => ({ ...nObj, [key]: obj[key] }), {});
+        .filter((key, __, array) => (keys || array).includes(key))
+        .reduce((nObj, key) => ({ ...nObj, [key]: obj[key] as string[] }), {});
     const a = filter(this.initVSIconsConfig, sections);
     const b = filter(currentConfig, sections);
     return !isEqual(a, b);
@@ -249,7 +250,7 @@ export class ConfigManager implements IConfigManager {
     const promises: Array<Promise<string>> = [];
     workspacePaths.forEach((wsp: string) => promises.push(iterator(wsp)));
     const absWspPath: string = (await Promise.all(promises)).find(
-      path => !!path,
+      (path: string) => !!path,
     );
     return Utils.pathUnixJoin(absWspPath, dPath);
   }

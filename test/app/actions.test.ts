@@ -19,19 +19,11 @@ describe('ExtensionManager: actions tests', function () {
     let sandbox: sinon.SinonSandbox;
     let vscodeManagerStub: sinon.SinonStubbedInstance<models.IVSCodeManager>;
     let configManagerStub: sinon.SinonStubbedInstance<models.IConfigManager>;
-    let settingsManagerStub: sinon.SinonStubbedInstance<
-      models.ISettingsManager
-    >;
-    let notifyManagerStub: sinon.SinonStubbedInstance<
-      models.INotificationManager
-    >;
+    let settingsManagerStub: sinon.SinonStubbedInstance<models.ISettingsManager>;
+    let notifyManagerStub: sinon.SinonStubbedInstance<models.INotificationManager>;
     let iconsGeneratorStub: sinon.SinonStubbedInstance<models.IIconsGenerator>;
-    let padMngStub: sinon.SinonStubbedInstance<
-      models.IProjectAutoDetectionManager
-    >;
-    let integrityManagerStub: sinon.SinonStubbedInstance<
-      models.IIntegrityManager
-    >;
+    let padMngStub: sinon.SinonStubbedInstance<models.IProjectAutoDetectionManager>;
+    let integrityManagerStub: sinon.SinonStubbedInstance<models.IIntegrityManager>;
     let onDidChangeConfigurationStub: sinon.SinonStub;
     let showCustomizationMessageStub: sinon.SinonStub;
     let extensionManager: models.IExtensionManager;
@@ -99,6 +91,7 @@ describe('ExtensionManager: actions tests', function () {
 
     context(`applying the project detection`, function () {
       let executeAndReloadStub: sinon.SinonStub;
+      let applyProjectDetection: (...arg: unknown[]) => void;
 
       beforeEach(function () {
         executeAndReloadStub = sandbox.stub(
@@ -106,20 +99,21 @@ describe('ExtensionManager: actions tests', function () {
           // @ts-ignore
           'executeAndReload',
         );
+        applyProjectDetection =
+          // @ts-ignore
+          extensionManager.applyProjectDetection as (...arg: unknown[]) => void;
       });
 
       context(`does nothing`, function () {
         it(`when no project detection results exist`, function () {
-          // @ts-ignore
-          extensionManager.applyProjectDetection();
+          applyProjectDetection.call(extensionManager);
 
           expect(executeAndReloadStub.called).to.be.false;
           expect(showCustomizationMessageStub.called).to.be.false;
         });
 
         it(`when project detection results apply is 'false'`, function () {
-          // @ts-ignore
-          extensionManager.applyProjectDetection({ apply: false });
+          applyProjectDetection.call(extensionManager, { apply: false });
 
           expect(executeAndReloadStub.called).to.be.false;
           expect(showCustomizationMessageStub.called).to.be.false;
@@ -143,8 +137,10 @@ describe('ExtensionManager: actions tests', function () {
           it(`when the 'autoReload' setting is 'true'`, function () {
             configManagerStub.vsicons.projectDetection.autoReload = true;
 
-            // @ts-ignore
-            extensionManager.applyProjectDetection(projectDetectionResults);
+            applyProjectDetection.call(
+              extensionManager,
+              projectDetectionResults,
+            );
 
             expect(
               executeAndReloadStub.calledOnceWithExactly(
@@ -160,8 +156,10 @@ describe('ExtensionManager: actions tests', function () {
           it(`when the 'autoReload' setting is 'false'`, function () {
             configManagerStub.vsicons.projectDetection.autoReload = false;
 
-            // @ts-ignore
-            extensionManager.applyProjectDetection(projectDetectionResults);
+            applyProjectDetection.call(
+              extensionManager,
+              projectDetectionResults,
+            );
 
             expect(executeAndReloadStub.called).to.be.false;
             expect(
@@ -184,8 +182,10 @@ describe('ExtensionManager: actions tests', function () {
                 models.Projects.nestjs,
               ];
 
-              // @ts-ignore
-              extensionManager.applyProjectDetection(projectDetectionResults);
+              applyProjectDetection.call(
+                extensionManager,
+                projectDetectionResults,
+              );
 
               expect(executeAndReloadStub.called).to.be.false;
               expect(
@@ -204,9 +204,13 @@ describe('ExtensionManager: actions tests', function () {
 
     context(`toggling the preset`, function () {
       let getToggledValueStub: sinon.SinonStub;
+      let togglePreset: (...arg: unknown[]) => Promise<void>;
 
       beforeEach(function () {
         getToggledValueStub = sandbox.stub(ManifestReader, 'getToggledValue');
+        togglePreset =
+          // @ts-ignore
+          extensionManager.togglePreset as (...arg: unknown[]) => Promise<void>;
       });
 
       context(`shows the customization message`, function () {
@@ -214,8 +218,8 @@ describe('ExtensionManager: actions tests', function () {
           const toggledValue = true;
           getToggledValueStub.resolves(toggledValue);
 
-          // @ts-ignore
-          await extensionManager.togglePreset(
+          await togglePreset.call(
+            extensionManager,
             models.PresetNames.tsOfficial,
             models.CommandNames.tsPreset,
             false,
@@ -249,8 +253,8 @@ describe('ExtensionManager: actions tests', function () {
             const toggledValue = false;
             getToggledValueStub.resolves(toggledValue);
 
-            // @ts-ignore
-            await extensionManager.togglePreset(
+            await togglePreset.call(
+              extensionManager,
               models.PresetNames.hideFolders,
               models.CommandNames.hideFoldersPreset,
               true,
@@ -283,8 +287,8 @@ describe('ExtensionManager: actions tests', function () {
             const toggledValue = true;
             getToggledValueStub.resolves(toggledValue);
 
-            // @ts-ignore
-            await extensionManager.togglePreset(
+            await togglePreset.call(
+              extensionManager,
               models.PresetNames.hideFolders,
               models.CommandNames.hideFoldersPreset,
               true,
@@ -321,8 +325,8 @@ describe('ExtensionManager: actions tests', function () {
             const toggledValue = false;
             getToggledValueStub.resolves(toggledValue);
 
-            // @ts-ignore
-            await extensionManager.togglePreset(
+            await togglePreset.call(
+              extensionManager,
               models.PresetNames.jsonOfficial,
               models.CommandNames.jsonPreset,
               false,
@@ -355,8 +359,8 @@ describe('ExtensionManager: actions tests', function () {
             const toggledValue = true;
             getToggledValueStub.resolves(toggledValue);
 
-            // @ts-ignore
-            await extensionManager.togglePreset(
+            await togglePreset.call(
+              extensionManager,
               models.PresetNames.jsonOfficial,
               models.CommandNames.jsonPreset,
               false,
@@ -394,8 +398,8 @@ describe('ExtensionManager: actions tests', function () {
               getToggledValueStub.resolves(true);
 
               try {
-                // @ts-ignore
-                await extensionManager.togglePreset(
+                await togglePreset.call(
+                  extensionManager,
                   models.PresetNames.jsOfficial,
                   undefined,
                   false,
@@ -410,8 +414,8 @@ describe('ExtensionManager: actions tests', function () {
               getToggledValueStub.resolves(false);
 
               try {
-                // @ts-ignore
-                await extensionManager.togglePreset(
+                await togglePreset.call(
+                  extensionManager,
                   models.PresetNames.jsOfficial,
                   undefined,
                   false,
@@ -430,6 +434,7 @@ describe('ExtensionManager: actions tests', function () {
       context(`generates and saves an icons manifest`, function () {
         let files: models.IFileCollection;
         let folders: models.IFolderCollection;
+        let applyCustomization: (...arg: unknown[]) => Promise<void>;
 
         beforeEach(function () {
           const associations = configManagerStub.vsicons.associations;
@@ -442,11 +447,15 @@ describe('ExtensionManager: actions tests', function () {
             supported: associations.folders,
           };
           iconsGeneratorStub.generateIconsManifest.resolves(models.schema);
+          applyCustomization =
+            // @ts-ignore
+            extensionManager.applyCustomization as (
+              ...arg: unknown[]
+            ) => Promise<void>;
         });
 
         it(`without a project detection result`, async function () {
-          // @ts-ignore
-          await extensionManager.applyCustomization();
+          await applyCustomization.call(extensionManager);
 
           expect(
             iconsGeneratorStub.generateIconsManifest.calledOnceWithExactly(
@@ -467,8 +476,10 @@ describe('ExtensionManager: actions tests', function () {
             },
           ];
 
-          // @ts-ignore
-          await extensionManager.applyCustomization(projectDetectionResults);
+          await applyCustomization.call(
+            extensionManager,
+            projectDetectionResults,
+          );
 
           expect(
             iconsGeneratorStub.generateIconsManifest.calledOnceWithExactly(
@@ -487,9 +498,13 @@ describe('ExtensionManager: actions tests', function () {
     context(`restoring the manifest`, function () {
       it(`generates and saves a default icons manifest`, async function () {
         iconsGeneratorStub.generateIconsManifest.resolves(models.schema);
+        const restoreManifest =
+          // @ts-ignore
+          extensionManager.restoreManifest as (
+            ...arg: unknown[]
+          ) => Promise<void>;
 
-        // @ts-ignore
-        await extensionManager.restoreManifest();
+        await restoreManifest.call(extensionManager);
 
         expect(
           iconsGeneratorStub.generateIconsManifest.calledOnceWithExactly(),
@@ -501,12 +516,19 @@ describe('ExtensionManager: actions tests', function () {
     });
 
     context(`reseting the project detection defaults`, function () {
+      let resetProjectDetectionDefaults: () => void;
+
+      beforeEach(function () {
+        resetProjectDetectionDefaults =
+          // @ts-ignore
+          extensionManager.resetProjectDetectionDefaults as () => void;
+      });
+
       context(`when 'autoReload' setting is`, function () {
         it(`'true', resets it to 'false'`, function () {
           configManagerStub.vsicons.projectDetection.autoReload = true;
 
-          // @ts-ignore
-          extensionManager.resetProjectDetectionDefaults();
+          resetProjectDetectionDefaults.call(extensionManager);
 
           expect(
             configManagerStub.updateAutoReload.calledOnceWithExactly(false),
@@ -517,8 +539,7 @@ describe('ExtensionManager: actions tests', function () {
         it(`'false', does nothing`, function () {
           configManagerStub.vsicons.projectDetection.autoReload = false;
 
-          // @ts-ignore
-          extensionManager.resetProjectDetectionDefaults();
+          resetProjectDetectionDefaults.call(extensionManager);
 
           expect(configManagerStub.updateAutoReload.called).to.be.false;
           expect(configManagerStub.updateDisableDetection.called).to.be.false;
@@ -529,8 +550,7 @@ describe('ExtensionManager: actions tests', function () {
         it(`'true', resets it to 'false'`, function () {
           configManagerStub.vsicons.projectDetection.disableDetect = true;
 
-          // @ts-ignore
-          extensionManager.resetProjectDetectionDefaults();
+          resetProjectDetectionDefaults.call(extensionManager);
 
           expect(
             configManagerStub.updateDisableDetection.calledOnceWithExactly(
@@ -543,8 +563,7 @@ describe('ExtensionManager: actions tests', function () {
         it(`'false', does nothing`, function () {
           configManagerStub.vsicons.projectDetection.disableDetect = false;
 
-          // @ts-ignore
-          extensionManager.resetProjectDetectionDefaults();
+          resetProjectDetectionDefaults.call(extensionManager);
 
           expect(configManagerStub.updateAutoReload.called).to.be.false;
           expect(configManagerStub.updateDisableDetection.called).to.be.false;

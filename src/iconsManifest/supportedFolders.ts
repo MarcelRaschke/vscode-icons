@@ -1,4 +1,3 @@
-/* tslint:disable max-line-length */
 import { FileFormat, IFolderCollection } from '../models';
 
 export const extensions: IFolderCollection = {
@@ -8,7 +7,11 @@ export const extensions: IFolderCollection = {
   },
   supported: [
     { icon: 'android', extensions: ['android'], format: FileFormat.svg },
-    { icon: 'api', extensions: ['api', '.api'], format: FileFormat.svg },
+    {
+      icon: 'api',
+      extensions: ['api', '.api', 'apis', '.apis'],
+      format: FileFormat.svg,
+    },
     { icon: 'app', extensions: ['app', '.app'], format: FileFormat.svg },
     {
       icon: 'arangodb',
@@ -96,11 +99,17 @@ export const extensions: IFolderCollection = {
       ],
       format: FileFormat.svg,
     },
-    { icon: 'client', extensions: ['client'], format: FileFormat.svg },
+    {
+      icon: 'client',
+      extensions: ['client', 'clients'],
+      format: FileFormat.svg,
+    },
     { icon: 'cmake', extensions: ['.cmake', 'cmake'], format: FileFormat.svg },
     {
       icon: 'config',
       extensions: [
+        'conf',
+        '.conf',
         'config',
         '.config',
         'configs',
@@ -122,7 +131,13 @@ export const extensions: IFolderCollection = {
     },
     { icon: 'coverage', extensions: ['coverage'], format: FileFormat.svg },
     { icon: 'css', extensions: ['css', '_css'], format: FileFormat.svg },
+    { icon: 'cubit', extensions: ['cubits', 'cubit'], format: FileFormat.svg },
     { icon: 'cypress', extensions: ['cypress'], format: FileFormat.svg },
+    {
+      icon: 'dapr',
+      extensions: ['.dapr', 'dapr'],
+      format: FileFormat.svg,
+    },
     {
       icon: 'db',
       extensions: [
@@ -136,10 +151,19 @@ export const extensions: IFolderCollection = {
       ],
       format: FileFormat.svg,
     },
-    { icon: 'debian', extensions: ['debian'], format: FileFormat.svg },
+    {
+      icon: 'debian',
+      extensions: ['debian', 'deb'],
+      format: FileFormat.svg,
+    },
     {
       icon: 'dependabot',
       extensions: ['.dependabot'],
+      format: FileFormat.svg,
+    },
+    {
+      icon: 'devcontainer',
+      extensions: ['.devcontainer'],
       format: FileFormat.svg,
     },
     {
@@ -180,9 +204,9 @@ export const extensions: IFolderCollection = {
       light: true,
       format: FileFormat.svg,
     },
-    { 
-      icon: 'expo', 
-      extensions: ['.expo', '.expo-shared'], 
+    {
+      icon: 'expo',
+      extensions: ['.expo', '.expo-shared'],
       light: true,
       format: FileFormat.svg,
     },
@@ -241,6 +265,16 @@ export const extensions: IFolderCollection = {
       extensions: ['helper', '.helper', 'helpers', '.helpers'],
       format: FileFormat.svg,
     },
+    {
+      icon: 'hook',
+      extensions: ['hook', '.hook', 'hooks', '.hooks'],
+      format: FileFormat.svg,
+    },
+    {
+      icon: 'husky',
+      extensions: ['.husky'],
+      format: FileFormat.svg,
+    },
     { icon: 'idea', extensions: ['.idea'], format: FileFormat.svg },
     {
       icon: 'images',
@@ -275,7 +309,11 @@ export const extensions: IFolderCollection = {
       ],
       format: FileFormat.svg,
     },
-    { icon: 'interfaces', extensions: ['interfaces'], format: FileFormat.svg },
+    {
+      icon: 'interfaces',
+      extensions: ['interface', 'interfaces'],
+      format: FileFormat.svg,
+    },
     { icon: 'ios', extensions: ['ios'], format: FileFormat.svg },
     { icon: 'js', extensions: ['js'], format: FileFormat.svg },
     { icon: 'json', extensions: ['json'], format: FileFormat.svg },
@@ -382,6 +420,7 @@ export const extensions: IFolderCollection = {
       light: true,
       format: FileFormat.svg,
     },
+    { icon: 'next', extensions: ['.next'], format: FileFormat.svg },
     { icon: 'nginx', extensions: ['nginx', 'conf.d'], format: FileFormat.svg },
     {
       icon: 'node',
@@ -489,7 +528,7 @@ export const extensions: IFolderCollection = {
     },
     {
       icon: 'story',
-      extensions: ['story', 'stories', '__stories__'],
+      extensions: ['story', 'stories', '__stories__', '.storybook'],
       format: FileFormat.svg,
     },
     { icon: 'style', extensions: ['style', 'styles'], format: FileFormat.svg },
@@ -523,7 +562,7 @@ export const extensions: IFolderCollection = {
     { icon: 'travis', extensions: ['.travis'], format: FileFormat.svg },
     {
       icon: 'tools',
-      extensions: ['tools', '.tools', 'util', 'utils'],
+      extensions: ['tool', 'tools', '.tools', 'util', 'utils'],
       format: FileFormat.svg,
     },
     {

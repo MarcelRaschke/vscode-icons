@@ -22,19 +22,11 @@ describe('ExtensionManager: messages tests', function () {
     let sandbox: sinon.SinonSandbox;
     let vscodeManagerStub: sinon.SinonStubbedInstance<models.IVSCodeManager>;
     let configManagerStub: sinon.SinonStubbedInstance<models.IConfigManager>;
-    let settingsManagerStub: sinon.SinonStubbedInstance<
-      models.ISettingsManager
-    >;
-    let notifyManagerStub: sinon.SinonStubbedInstance<
-      models.INotificationManager
-    >;
+    let settingsManagerStub: sinon.SinonStubbedInstance<models.ISettingsManager>;
+    let notifyManagerStub: sinon.SinonStubbedInstance<models.INotificationManager>;
     let iconsGeneratorStub: sinon.SinonStubbedInstance<models.IIconsGenerator>;
-    let padMngStub: sinon.SinonStubbedInstance<
-      models.IProjectAutoDetectionManager
-    >;
-    let integrityManagerStub: sinon.SinonStubbedInstance<
-      models.IIntegrityManager
-    >;
+    let padMngStub: sinon.SinonStubbedInstance<models.IProjectAutoDetectionManager>;
+    let integrityManagerStub: sinon.SinonStubbedInstance<models.IIntegrityManager>;
     let isNewVersionStub: sinon.SinonStub;
     let logErrorStub: sinon.SinonStub;
 
@@ -106,6 +98,7 @@ describe('ExtensionManager: messages tests', function () {
     context(`managing the intro message`, function () {
       let showWelcomeMessageStub: sinon.SinonStub;
       let showNewVersionMessageStub: sinon.SinonStub;
+      let manageIntroMessage: () => Promise<void>;
 
       beforeEach(function () {
         showWelcomeMessageStub = sandbox.stub(
@@ -118,6 +111,9 @@ describe('ExtensionManager: messages tests', function () {
           // @ts-ignore
           'showNewVersionMessage',
         );
+        manageIntroMessage =
+          // @ts-ignore
+          extensionManager.manageIntroMessage as () => Promise<void>;
       });
 
       context(`the welcome message gets`, function () {
@@ -129,16 +125,14 @@ describe('ExtensionManager: messages tests', function () {
           });
 
           it(`when the 'welcomeShown' setting is 'false'`, async function () {
-            // @ts-ignore
-            await extensionManager.manageIntroMessage();
+            await manageIntroMessage.call(extensionManager);
 
             expect(showWelcomeMessageStub.calledOnceWithExactly()).to.be.true;
             expect(showNewVersionMessageStub.called).to.be.false;
           });
 
           it(`when the icon theme is NOT set to this extension`, async function () {
-            // @ts-ignore
-            await extensionManager.manageIntroMessage();
+            await manageIntroMessage.call(extensionManager);
 
             expect(showWelcomeMessageStub.calledOnceWithExactly()).to.be.true;
             expect(showNewVersionMessageStub.called).to.be.false;
@@ -153,16 +147,14 @@ describe('ExtensionManager: messages tests', function () {
           });
 
           it(`when the 'welcomeShown' setting is 'true'`, async function () {
-            // @ts-ignore
-            await extensionManager.manageIntroMessage();
+            await manageIntroMessage.call(extensionManager);
 
             expect(showWelcomeMessageStub.called).to.be.false;
             expect(showNewVersionMessageStub.called).to.be.false;
           });
 
           it(`when the icon theme is set to this extension`, async function () {
-            // @ts-ignore
-            await extensionManager.manageIntroMessage();
+            await manageIntroMessage.call(extensionManager);
 
             expect(showWelcomeMessageStub.called).to.be.false;
             expect(showNewVersionMessageStub.called).to.be.false;
@@ -184,8 +176,7 @@ describe('ExtensionManager: messages tests', function () {
           });
 
           it(`when the 'isNewVersion' setting is 'true'`, async function () {
-            // @ts-ignore
-            await extensionManager.manageIntroMessage();
+            await manageIntroMessage.call(extensionManager);
 
             expect(settingsManagerStub.isNewVersion).to.be.true;
             expect(showWelcomeMessageStub.called).to.be.false;
@@ -195,8 +186,7 @@ describe('ExtensionManager: messages tests', function () {
           });
 
           it(`when the 'dontShowNewVersionMessage' setting is 'false'`, async function () {
-            // @ts-ignore
-            await extensionManager.manageIntroMessage();
+            await manageIntroMessage.call(extensionManager);
 
             expect(settingsManagerStub.isNewVersion).to.be.true;
             expect(showWelcomeMessageStub.called).to.be.false;
@@ -213,8 +203,7 @@ describe('ExtensionManager: messages tests', function () {
           });
 
           it(`when the 'isNewVersion' setting is 'false'`, async function () {
-            // @ts-ignore
-            await extensionManager.manageIntroMessage();
+            await manageIntroMessage.call(extensionManager);
 
             expect(settingsManagerStub.isNewVersion).to.be.false;
             expect(showWelcomeMessageStub.called).to.be.false;
@@ -222,8 +211,7 @@ describe('ExtensionManager: messages tests', function () {
           });
 
           it(`when the 'dontShowNewVersionMessage' setting is 'true'`, async function () {
-            // @ts-ignore
-            await extensionManager.manageIntroMessage();
+            await manageIntroMessage.call(extensionManager);
 
             expect(settingsManagerStub.isNewVersion).to.be.false;
             expect(showWelcomeMessageStub.called).to.be.false;
@@ -235,6 +223,7 @@ describe('ExtensionManager: messages tests', function () {
 
     context(`managing the customizations`, function () {
       let applyCustomizationCommandStub: sinon.SinonStub;
+      let manageCustomizations: () => Promise<void>;
 
       beforeEach(function () {
         // @ts-ignore
@@ -244,6 +233,9 @@ describe('ExtensionManager: messages tests', function () {
           // @ts-ignore
           'applyCustomizationCommand',
         );
+        manageCustomizations =
+          // @ts-ignore
+          extensionManager.manageCustomizations as () => Promise<void>;
       });
 
       context(`applies the customizations`, function () {
@@ -252,8 +244,7 @@ describe('ExtensionManager: messages tests', function () {
             isNewVersionStub.value(true);
             configManagerStub.hasConfigChanged.returns(true);
 
-            // @ts-ignore
-            await extensionManager.manageCustomizations();
+            await manageCustomizations.call(extensionManager);
 
             expect(settingsManagerStub.isNewVersion).to.be.true;
             expect(
@@ -269,8 +260,7 @@ describe('ExtensionManager: messages tests', function () {
             isNewVersionStub.value(true);
             configManagerStub.hasConfigChanged.returns(false);
 
-            // @ts-ignore
-            await extensionManager.manageCustomizations();
+            await manageCustomizations.call(extensionManager);
 
             expect(settingsManagerStub.isNewVersion).to.be.true;
             expect(applyCustomizationCommandStub.called).to.be.false;
@@ -288,8 +278,7 @@ describe('ExtensionManager: messages tests', function () {
               it(`different`, async function () {
                 configManagerStub.hasConfigChanged.returns(true);
 
-                // @ts-ignore
-                await extensionManager.manageCustomizations();
+                await manageCustomizations.call(extensionManager);
 
                 expect(settingsManagerStub.isNewVersion).to.be.false;
                 expect(applyCustomizationCommandStub.called).to.be.false;
@@ -298,8 +287,7 @@ describe('ExtensionManager: messages tests', function () {
               it(`NOT different`, async function () {
                 configManagerStub.hasConfigChanged.returns(false);
 
-                // @ts-ignore
-                await extensionManager.manageCustomizations();
+                await manageCustomizations.call(extensionManager);
 
                 expect(settingsManagerStub.isNewVersion).to.be.false;
                 expect(applyCustomizationCommandStub.called).to.be.false;
@@ -311,12 +299,19 @@ describe('ExtensionManager: messages tests', function () {
     });
 
     context(`showing the welcome message`, function () {
+      let showWelcomeMessage: () => Promise<void>;
+
+      beforeEach(function () {
+        showWelcomeMessage =
+          // @ts-ignore
+          extensionManager.showWelcomeMessage as () => Promise<void>;
+      });
+
       it(`logs an Error, when displaying the message fails`, async function () {
         const error = new Error();
         notifyManagerStub.notifyInfo.rejects(error);
 
-        // @ts-ignore
-        await extensionManager.showWelcomeMessage();
+        await showWelcomeMessage.call(extensionManager);
 
         expect(logErrorStub.calledOnceWithExactly(error)).to.be.true;
       });
@@ -338,8 +333,7 @@ describe('ExtensionManager: messages tests', function () {
           it(`does nothing`, async function () {
             notifyManagerStub.notifyInfo.resolves();
 
-            // @ts-ignore
-            await extensionManager.showWelcomeMessage();
+            await showWelcomeMessage.call(extensionManager);
 
             expect(
               notifyManagerStub.notifyInfo.calledOnceWithExactly(
@@ -360,8 +354,7 @@ describe('ExtensionManager: messages tests', function () {
               models.LangResourceKeys.activate,
             );
 
-            // @ts-ignore
-            await extensionManager.showWelcomeMessage();
+            await showWelcomeMessage.call(extensionManager);
 
             expect(
               notifyManagerStub.notifyInfo.calledOnceWithExactly(
@@ -382,8 +375,8 @@ describe('ExtensionManager: messages tests', function () {
               .resolves(models.LangResourceKeys.aboutOfficialApi)
               .resolves();
 
-            // @ts-ignore
-            await extensionManager.showWelcomeMessage();
+            await showWelcomeMessage.call(extensionManager);
+
             expect(
               notifyManagerStub.notifyInfo.calledWithExactly(
                 models.LangResourceKeys.welcome,
@@ -406,8 +399,7 @@ describe('ExtensionManager: messages tests', function () {
               .resolves(models.LangResourceKeys.seeReadme)
               .resolves();
 
-            // @ts-ignore
-            await extensionManager.showWelcomeMessage();
+            await showWelcomeMessage.call(extensionManager);
 
             expect(
               notifyManagerStub.notifyInfo.calledWithExactly(
@@ -427,12 +419,19 @@ describe('ExtensionManager: messages tests', function () {
     });
 
     context(`showing the new version message`, function () {
+      let showNewVersionMessage: () => Promise<void>;
+
+      beforeEach(function () {
+        showNewVersionMessage =
+          // @ts-ignore
+          extensionManager.showNewVersionMessage as () => Promise<void>;
+      });
+
       it(`logs an Error, when displaying the message fails`, async function () {
         const error = new Error();
         notifyManagerStub.notifyInfo.rejects(error);
 
-        // @ts-ignore
-        await extensionManager.showNewVersionMessage();
+        await showNewVersionMessage.call(extensionManager);
 
         expect(logErrorStub.calledOnceWithExactly(error)).to.be.true;
       });
@@ -448,8 +447,7 @@ describe('ExtensionManager: messages tests', function () {
           it(`does nothing`, async function () {
             notifyManagerStub.notifyInfo.resolves();
 
-            // @ts-ignore
-            await extensionManager.showNewVersionMessage();
+            await showNewVersionMessage.call(extensionManager);
 
             expect(
               notifyManagerStub.notifyInfo.calledOnceWithExactly(
@@ -472,8 +470,7 @@ describe('ExtensionManager: messages tests', function () {
               .onFirstCall()
               .resolves(models.LangResourceKeys.seeReleaseNotes);
 
-            // @ts-ignore
-            await extensionManager.showNewVersionMessage();
+            await showNewVersionMessage.call(extensionManager);
 
             expect(
               notifyManagerStub.notifyInfo.calledOnceWithExactly(
@@ -495,8 +492,7 @@ describe('ExtensionManager: messages tests', function () {
               models.LangResourceKeys.dontShowThis,
             );
 
-            // @ts-ignore
-            await extensionManager.showNewVersionMessage();
+            await showNewVersionMessage.call(extensionManager);
 
             expect(
               notifyManagerStub.notifyInfo.calledOnceWithExactly(
@@ -518,11 +514,24 @@ describe('ExtensionManager: messages tests', function () {
 
     context(`showing the customization message`, function () {
       let supportsThemesReloadStub: sinon.SinonStub;
+      let handleActionStub: sinon.SinonStub;
+      let showCustomizationMessage: (...arg: unknown[]) => Promise<void>;
+
       beforeEach(function () {
         supportsThemesReloadStub = sandbox.stub(
           vscodeManagerStub,
           'supportsThemesReload',
         );
+        handleActionStub = sandbox.stub(
+          extensionManager,
+          // @ts-ignore
+          'handleAction',
+        );
+        showCustomizationMessage =
+          // @ts-ignore
+          extensionManager.showCustomizationMessage as (
+            ...arg: unknown[]
+          ) => Promise<void>;
       });
 
       context(`when editor theme reload is NOT supported`, function () {
@@ -531,16 +540,11 @@ describe('ExtensionManager: messages tests', function () {
           const items = ['item'];
           const cb = sinon.fake();
           const cbArgs = [];
-          const handleActionStub = sandbox.stub(
-            extensionManager,
-            // @ts-ignore
-            'handleAction',
-          );
           supportsThemesReloadStub.get(() => false);
           notifyManagerStub.notifyInfo.resolves('btn');
 
-          // @ts-ignore
-          await extensionManager.showCustomizationMessage(
+          await showCustomizationMessage.call(
+            extensionManager,
             message,
             items,
             cb,
@@ -565,15 +569,10 @@ describe('ExtensionManager: messages tests', function () {
           const items = [models.LangResourceKeys.reload];
           const cb = sinon.fake();
           const cbArgs = [];
-          const handleActionStub = sandbox.stub(
-            extensionManager,
-            // @ts-ignore
-            'handleAction',
-          );
           supportsThemesReloadStub.get(() => true);
 
-          // @ts-ignore
-          await extensionManager.showCustomizationMessage(
+          await showCustomizationMessage.call(
+            extensionManager,
             message,
             items,
             cb,
@@ -592,15 +591,6 @@ describe('ExtensionManager: messages tests', function () {
       });
 
       context(`logs an Error`, function () {
-        let handleActionStub: sinon.SinonStub;
-        beforeEach(function () {
-          handleActionStub = sandbox.stub(
-            extensionManager,
-            // @ts-ignore
-            'handleAction',
-          );
-        });
-
         it(`when displaying the message fails`, async function () {
           const message = 'test';
           const items = ['item'];
@@ -608,8 +598,7 @@ describe('ExtensionManager: messages tests', function () {
           notifyManagerStub.notifyInfo.rejects(error);
           supportsThemesReloadStub.get(() => false);
 
-          // @ts-ignore
-          await extensionManager.showCustomizationMessage(message, items);
+          await showCustomizationMessage.call(extensionManager, message, items);
 
           expect(
             notifyManagerStub.notifyInfo.calledOnceWithExactly(
@@ -628,8 +617,7 @@ describe('ExtensionManager: messages tests', function () {
           handleActionStub.throws(error);
           supportsThemesReloadStub.get(() => true);
 
-          // @ts-ignore
-          await extensionManager.showCustomizationMessage(message, items);
+          await showCustomizationMessage.call(extensionManager, message, items);
 
           expect(notifyManagerStub.notifyInfo.called).to.be.false;
           expect(

@@ -14,7 +14,7 @@ describe('Build: tests', function () {
     let generateIconsManifestStub: sinon.SinonStub;
     let persistStub: sinon.SinonStub;
     let logErrorStub: sinon.SinonStub;
-    let build: any;
+    let build: () => Promise<void>;
 
     before(function () {
       proxyq.noCallThru();
@@ -35,12 +35,12 @@ describe('Build: tests', function () {
         generateIconsManifest: generateIconsManifestStub,
         persist: persistStub,
       }));
-      build = async (): Promise<void> =>
+      build = (): Promise<void> =>
         proxyq('../../src/tools/build', {
           '../iconsManifest/iconsGenerator': {
             IconsGenerator: iconsGeneratorStub,
           },
-        });
+        }) as Promise<void>;
     });
 
     afterEach(function () {
@@ -74,7 +74,7 @@ describe('Build: tests', function () {
 
             expect(constants.environment.production).to.be.true;
             expect(ConfigManager.outDir).to.match(
-              new RegExp(`.*[\\\\|\/]${constants.extension.distDirName}$`),
+              new RegExp(`.*[\\\\|/]${constants.extension.distDirName}$`),
             );
           });
 
@@ -85,7 +85,7 @@ describe('Build: tests', function () {
 
             expect(constants.environment.production).to.be.true;
             expect(ConfigManager.outDir).to.match(
-              new RegExp(`.*[\\\\|\/]${constants.extension.distDirName}$`),
+              new RegExp(`.*[\\\\|/]${constants.extension.distDirName}$`),
             );
           });
         });

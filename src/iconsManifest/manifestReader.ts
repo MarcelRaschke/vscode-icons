@@ -10,12 +10,14 @@ export class ManifestReader {
     presets: models.IPresets,
   ): Promise<boolean> {
     const isNonIconsRelatedPreset = (): boolean =>
-      [models.PresetNames.hideExplorerArrows].some(prst => prst === preset);
+      [models.PresetNames.hideExplorerArrows].some(
+        (prst: models.PresetNames) => prst === preset,
+      );
     const isFoldersRelatedPreset = (): boolean =>
       [
         models.PresetNames.hideFolders,
         models.PresetNames.foldersAllDefaultIcon,
-      ].some(prst => prst === preset);
+      ].some((prst: models.PresetNames) => prst === preset);
     const presetName = models.PresetNames[preset];
 
     return isNonIconsRelatedPreset()
@@ -30,19 +32,23 @@ export class ManifestReader {
     isFile = true,
   ): Promise<boolean> {
     const iconManifest: string = await this.getIconManifest();
-    const iconsJson: models.IIconSchema = Utils.parseJSON(iconManifest);
+    const iconsJson: models.IIconSchema = Utils.parseJSONSafe<
+      models.IIconSchema
+    >(iconManifest);
     const prefix: string = isFile
       ? constants.iconsManifest.definitionFilePrefix
       : constants.iconsManifest.definitionFolderPrefix;
     const suffix: string = Reflect.ownKeys(models.Projects).some(
-      key => models.Projects[key] === name,
+      (key: string | number | symbol) => models.Projects[key] === name,
     )
       ? '_'
       : '';
     const defNamePattern = `${prefix}${name}${suffix}`;
     return (
       !iconsJson ||
-      !Reflect.ownKeys(iconsJson.iconDefinitions).filter(key =>
+      !Reflect.ownKeys(
+        iconsJson.iconDefinitions,
+      ).filter((key: string | number | symbol) =>
         key.toString().startsWith(defNamePattern),
       ).length
     );
@@ -52,7 +58,9 @@ export class ManifestReader {
     presetName: string,
   ): Promise<boolean> {
     const manifest: string = await this.getIconManifest();
-    const iconsJson: models.IIconSchema = Utils.parseJSON(manifest);
+    const iconsJson: models.IIconSchema = Utils.parseJSONSafe<
+      models.IIconSchema
+    >(manifest);
     if (!iconsJson) {
       return true;
     }

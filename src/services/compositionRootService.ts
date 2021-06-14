@@ -3,27 +3,27 @@ import {
   decorate,
   inject,
   injectable,
-  // eslint-disable-next-line import/named
-  interfaces,
   METADATA_KEY,
 } from 'inversify';
+import { ServiceIdentifierOrFunc } from 'inversify/dts/annotation/inject';
+import { interfaces } from 'inversify/dts/interfaces/interfaces';
 import 'reflect-metadata';
 import * as vscode from 'vscode';
-import { ServiceIdentifierOrFunc } from '../../node_modules/inversify/dts/annotation/inject';
 import { ExtensionManager } from '../app/extensionManager';
 import { ConfigManager } from '../configuration/configManager';
 import { LanguageResourceManager } from '../i18n/languageResourceManager';
 import { IconsGenerator } from '../iconsManifest';
+import { IntegrityManager } from '../integrity/integrityManager';
 import * as models from '../models';
+import { ICompositionRootService } from '../models/services/compositionRootService';
 import { NotificationManager } from '../notification/notificationManager';
 import { ProjectAutoDetectionManager } from '../pad/projectAutoDetectionManager';
 import { SettingsManager } from '../settings/settingsManager';
 import { VSCodeManager } from '../vscode/vscodeManager';
-import { IntegrityManager } from '../integrity/integrityManager';
 
-type Class = new (...args: any[]) => any;
+type Class = new (...args: unknown[]) => unknown;
 
-export class CompositionRootService {
+export class CompositionRootService implements ICompositionRootService {
   private readonly container: Container;
   private injectableClasses: ReadonlyArray<[Class, ServiceIdentifierOrFunc[]]>;
 
@@ -40,8 +40,11 @@ export class CompositionRootService {
 
   public dispose(): void {
     this.injectableClasses
-      .map(injectableClass => injectableClass[0])
-      .forEach(klass => {
+      .map(
+        (injectableClass: [Class, ServiceIdentifierOrFunc[]]) =>
+          injectableClass[0],
+      )
+      .forEach((klass: Class) => {
         Reflect.deleteMetadata(METADATA_KEY.PARAM_TYPES, klass);
         Reflect.deleteMetadata(METADATA_KEY.TAGGED, klass);
       });
@@ -92,16 +95,18 @@ export class CompositionRootService {
   }
 
   private initDecorations(): void {
-    this.injectableClasses.forEach(injectableClass => {
-      // declare classes as injectables
-      const klass: Class = injectableClass[0];
-      decorate(injectable(), klass);
-      // declare injectable parameters
-      const params: ServiceIdentifierOrFunc[] = injectableClass[1];
-      params.forEach((identifier: ServiceIdentifierOrFunc, index: number) =>
-        decorate(inject(identifier), klass, index),
-      );
-    });
+    this.injectableClasses.forEach(
+      (injectableClass: [Class, ServiceIdentifierOrFunc[]]) => {
+        // declare classes as injectables
+        const klass: Class = injectableClass[0];
+        decorate(injectable(), klass);
+        // declare injectable parameters
+        const params: ServiceIdentifierOrFunc[] = injectableClass[1];
+        params.forEach((identifier: ServiceIdentifierOrFunc, index: number) =>
+          decorate(inject(identifier), klass, index),
+        );
+      },
+    );
   }
 
   private initBindings(): void {

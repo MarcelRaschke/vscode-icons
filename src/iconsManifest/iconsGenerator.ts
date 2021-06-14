@@ -1,4 +1,4 @@
-import * as manifest from '../../../package.json';
+import * as packageJson from '../../../package.json';
 import { ErrorHandler } from '../common/errorHandler';
 import { existsAsync, writeFileAsync } from '../common/fsAsync';
 import { ConfigManager } from '../configuration/configManager';
@@ -9,17 +9,21 @@ import { CustomsMerger } from './customsMerger';
 import { ManifestBuilder } from './manifestBuilder';
 import { extensions as extFiles } from './supportedExtensions';
 import { extensions as extFolders } from './supportedFolders';
+import { IPackageManifest } from '../models/packageManifest';
 
 export class IconsGenerator implements models.IIconsGenerator {
+  private readonly manifest: IPackageManifest;
   private affectedPresets: models.IPresets;
 
   constructor(
     private vscodeManager?: models.IVSCodeManager,
     private configManager?: models.IConfigManager,
   ) {
+    this.manifest = packageJson as IPackageManifest;
     // register event listener for configuration changes
     if (this.vscodeManager) {
       this.vscodeManager.workspace.onDidChangeConfiguration(
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         this.didChangeConfigurationListener,
         this,
         this.vscodeManager.context.subscriptions,
@@ -102,7 +106,6 @@ export class IconsGenerator implements models.IIconsGenerator {
         ),
       );
 
-      // eslint-disable-next-line no-console
       console.info(
         `[${constants.extension.name}] Icons manifest file successfully generated!`,
       );
@@ -112,21 +115,37 @@ export class IconsGenerator implements models.IIconsGenerator {
   }
 
   private async updatePackageJson(): Promise<void> {
-    const oldMainPath = manifest.main;
-    const oldIconsThemesPath = manifest.contributes.iconThemes[0].path;
     const sourceDirRelativePath = await Utils.getRelativePath(
       ConfigManager.rootDir,
       ConfigManager.sourceDir,
     );
+
     const entryFilename = constants.environment.production
       ? constants.extension.distEntryFilename
       : '';
     const entryPath = `${sourceDirRelativePath}${entryFilename}`;
-    const iconsDirRelativePath = `${sourceDirRelativePath}${constants.iconsManifest.filename}`;
+    const oldMainPath = this.manifest.main;
     const mainPathChanged = oldMainPath && oldMainPath !== entryPath;
+
+    const uninstallEntryFilename = constants.environment.production
+      ? constants.extension.uninstallEntryFilename
+      : 'uninstall.js';
+    const uninstallEntryPath = `node ./${sourceDirRelativePath}${uninstallEntryFilename}`;
+    const oldUninstallScriptPath = this.manifest.scripts['vscode:uninstall'];
+    const uninstallScriptPathChanged =
+      oldUninstallScriptPath && oldUninstallScriptPath !== uninstallEntryPath;
+
+    const iconsDirRelativePath = `${sourceDirRelativePath}${constants.iconsManifest.filename}`;
+    const iconTheme = this.manifest.contributes.iconThemes[0];
+    const oldIconsThemesPath = iconTheme.path;
     const iconThemePathChanged =
       oldIconsThemesPath && oldIconsThemesPath !== iconsDirRelativePath;
-    if (!iconThemePathChanged && !mainPathChanged) {
+
+    if (
+      !iconThemePathChanged &&
+      !mainPathChanged &&
+      !uninstallScriptPathChanged
+    ) {
       return;
     }
     const replacer = (rawText: string[]): string[] => {
@@ -138,7 +157,6 @@ export class IconsGenerator implements models.IIconsGenerator {
           oldIconsThemesPath,
           iconsDirRelativePath,
         );
-        // eslint-disable-next-line no-console
         console.info(
           `[${constants.extension.name}] Icons path in 'package.json' updated`,
         );
@@ -148,12 +166,25 @@ export class IconsGenerator implements models.IIconsGenerator {
       lineIndex = rawText.findIndex(predicate);
       if (lineIndex > -1) {
         rawText[lineIndex] = rawText[lineIndex].replace(
-          manifest.main,
+          this.manifest.main,
           entryPath,
+        );
+        console.info(
+          `[${constants.extension.name}] Entrypoint in 'package.json' updated`,
+        );
+      }
+      // update 'vscode:uninstall' script
+      predicate = (line: string): boolean =>
+        line.includes('"vscode:uninstall"');
+      lineIndex = rawText.findIndex(predicate);
+      if (lineIndex > -1) {
+        rawText[lineIndex] = rawText[lineIndex].replace(
+          this.manifest.scripts['vscode:uninstall'],
+          uninstallEntryPath,
         );
         // eslint-disable-next-line no-console
         console.info(
-          `[${constants.extension.name}] Entrypoint in 'package.json' updated`,
+          `[${constants.extension.name}] Script 'vscode:uninstall' in 'package.json' updated`,
         );
       }
       return rawText;

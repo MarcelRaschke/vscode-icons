@@ -3,6 +3,7 @@ import { readFileAsync } from '../common/fsAsync';
 import { constants } from '../constants';
 import { ManifestReader } from '../iconsManifest';
 import * as models from '../models';
+import { IPackageManifest } from '../models/packageManifest';
 import { Utils } from '../utils';
 
 export class ProjectAutoDetectionManager
@@ -27,13 +28,13 @@ export class ProjectAutoDetectionManager
     }
 
     try {
-      const results = await (this.configManager.vsicons.projectDetection
+      const results = (await (this.configManager.vsicons.projectDetection
         .disableDetect
         ? Promise.resolve(null)
         : this.vscodeManager.workspace.findFiles(
             '**/package.json',
             '**/node_modules/**',
-          ));
+          ))) as models.IVSCodeUri[];
       return this.detect(results, projects);
     } catch (error) {
       ErrorHandler.logError(error);
@@ -62,7 +63,7 @@ export class ProjectAutoDetectionManager
     results: models.IVSCodeUri[],
     project: models.Projects,
   ): Promise<models.IProjectDetectionResult> {
-    const _getPresetName = (_project: models.Projects): string => {
+    const getPresetName = (_project: models.Projects): string => {
       switch (_project) {
         case models.Projects.angular:
           return constants.vsicons.presets.angular;
@@ -74,9 +75,8 @@ export class ProjectAutoDetectionManager
     };
 
     // We need to check only the 'workspaceValue' ('user' setting should be ignored)
-    const _getPreset = (proj: models.Projects): boolean =>
-      this.configManager.getPreset<boolean>(_getPresetName(proj))
-        .workspaceValue;
+    const getPreset = (proj: models.Projects): boolean =>
+      this.configManager.getPreset<boolean>(getPresetName(proj)).workspaceValue;
 
     const iconsDisabled: boolean = await ManifestReader.iconsDisabled(project);
 
@@ -84,7 +84,7 @@ export class ProjectAutoDetectionManager
     // 1. Preset is set to 'false' and icons are not present in the manifest file
     // 2. Preset is set to 'true' and icons are present in the manifest file
     // For this cases PAD will not display a message
-    const preset = _getPreset(project);
+    const preset = getPreset(project);
     let bypass =
       preset != null &&
       ((!preset && iconsDisabled) || (preset && !iconsDisabled));
@@ -113,7 +113,7 @@ export class ProjectAutoDetectionManager
     // bypass, if user explicitly has any preset of a conficting project set
     // and those icons are enabled
     for (const cp of conflictingProjects) {
-      bypass = _getPreset(cp);
+      bypass = getPreset(cp);
       if (bypass) {
         break;
       }
@@ -210,9 +210,11 @@ export class ProjectAutoDetectionManager
     let projectInfo: models.IProjectInfo = null;
     for (const result of results) {
       const content: string = await readFileAsync(result.fsPath, 'utf8');
-      const projectJson: { [key: string]: any } = Utils.parseJSON(content);
+      const projectJson: IPackageManifest = Utils.parseJSONSafe<
+        IPackageManifest
+      >(content);
       projectInfo = this.getInfo(projectJson, project);
-      if (!!projectInfo) {
+      if (projectInfo) {
         break;
       }
     }
@@ -220,14 +222,14 @@ export class ProjectAutoDetectionManager
   }
 
   private getInfo(
-    projectJson: { [key: string]: any },
+    projectJson: IPackageManifest,
     name: models.Projects,
   ): models.IProjectInfo {
     if (!projectJson) {
       return null;
     }
 
-    const _getInfo = (key: string): models.IProjectInfo => {
+    const getInfo = (key: string): models.IProjectInfo => {
       if (projectJson.dependencies && !!projectJson.dependencies[key]) {
         return { name, version: projectJson.dependencies[key] };
       }
@@ -239,9 +241,9 @@ export class ProjectAutoDetectionManager
 
     switch (name) {
       case models.Projects.angular:
-        return _getInfo('@angular/core');
+        return getInfo('@angular/core');
       case models.Projects.nestjs:
-        return _getInfo('@nestjs/core');
+        return getInfo('@nestjs/core');
       default:
         return null;
     }
