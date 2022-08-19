@@ -1,0 +1,30 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - eslint > lodash:
+        patched: '2022-08-19T21:58:58.473Z'
+    - '@typescript-eslint/parser > @typescript-eslint/typescript-estree > lodash':
+        patched: '2022-08-19T21:58:58.473Z'
+    - eslint > inquirer > lodash:
+        patched: '2022-08-19T21:58:58.473Z'
+    - eslint > table > lodash:
+        patched: '2022-08-19T21:58:58.473Z'
+    - mocha > yargs-unparser > lodash:
+        patched: '2022-08-19T21:58:58.473Z'
+    - '@typescript-eslint/parser > @typescript-eslint/experimental-utils > @typescript-eslint/typescript-estree > lodash':
+        patched: '2022-08-19T21:58:58.473Z'
+    - nyc > istanbul-lib-instrument > @babel/core > lodash:
+        patched: '2022-08-19T21:58:58.473Z'
+    - nyc > istanbul-lib-instrument > @babel/core > @babel/traverse > lodash:
+        patched: '2022-08-19T21:58:58.473Z'
+    - nyc > istanbul-lib-instrument > @babel/core > @babel/helpers > @babel/traverse > lodash:
+        patched: '2022-08-19T21:58:58.473Z'
+    - nyc > istanbul-lib-instrument > @babel/core > @babel/helpers > @babel/traverse > @babel/generator > lodash:
+        patched: '2022-08-19T21:58:58.473Z'
+    - nyc > istanbul-lib-instrument > @babel/core > @babel/helpers > @babel/traverse > @babel/helper-split-export-declaration > @babel/types > lodash:
+        patched: '2022-08-19T21:58:58.473Z'
+    - nyc > istanbul-lib-instrument > @babel/core > @babel/helpers > @babel/traverse > @babel/helper-function-name > @babel/helper-get-function-arity > @babel/types > lodash:
+        patched: '2022-08-19T21:58:58.473Z'
